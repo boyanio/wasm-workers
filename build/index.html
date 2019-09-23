@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Emscripten-Generated Code</title>
+    <style>
+      body {
+        font-family: arial;
+        margin: 0;
+        padding: none;
+      }
+
+      #matrix-container {
+        width: 70%;
+        float: left;
+        position: relative;
+      }
+
+      #matrix {
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        position: absolute;
+        top: 10px;
+      }
+
+      .cell {
+        float: left;
+        border-right: 1px solid black;
+        border-bottom: 1px solid black;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      #status {
+        width: 29%;
+        text-align: center;
+        float: left;
+        margin: 10px 0 0 0;
+        font-size: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="status">&nbsp;</h1>
+    <div id="matrix-container">
+      <div id="matrix"></div>
+    </div>
+
+    <script>
+      function createMatrix(width, height) {
+        const matrixEl = document.getElementById("matrix");
+        const cellSize = 50;
+        const cellRightBorderSize = 1;
+
+        const matrixSize = width * height;
+        for (let cellId = 0; cellId < matrixSize; cellId++) {
+          const cellEl = document.createElement("div");
+          cellEl.id = "cell" + cellId;
+          cellEl.innerText = (cellId + 1).toString();
+          cellEl.className = "cell";
+          cellEl.style.width = cellSize + "px";
+          cellEl.style.height = cellSize + "px";
+          cellEl.style.lineHeight = cellSize + "px";
+          cellEl.style.borderRightWidth = cellRightBorderSize + "px";
+          matrixEl.appendChild(cellEl);
+        }
+
+        const matrixElWidth = width * (cellSize + cellRightBorderSize);
+        matrixEl.style.width = matrixElWidth + "px";
+        matrixEl.style.left =
+          (document.getElementById("matrix-container").clientWidth -
+            matrixElWidth) /
+            2 +
+          "px";
+      }
+
+      function colorCell(cellId, color) {
+        const { red, green, blue } = color;
+        const cellEl = document.getElementById("cell" + cellId);
+        cellEl.style.backgroundColor =
+          "rgb(" + red + "," + green + "," + blue + ")";
+      }
+
+      function createJsWorkers(workersCount, matrixSize) {
+        let fromCellId = 1;
+        const cellsPerWorker = Math.ceil(matrixSize / workersCount);
+        const startTime = performance.now();
+        let cellsUsed = 0;
+
+        for (let w = 0; w < workersCount; w++) {
+          const worker = new Worker("js-worker.js");
+          worker.onmessage = ({ data: { cellId, color } }) => {
+            colorCell(cellId, color);
+
+            cellsUsed++;
+            if (cellsUsed === matrixSize) {
+              const endTime = performance.now();
+              console.log("Done in " + (endTime - startTime) + "ms");
+            }
+          };
+
+          const cellsToUseCount =
+            fromCellId + cellsPerWorker - 1 > matrixSize
+              ? matrixSize - fromCellId + 1
+              : cellsPerWorker;
+          const cellIds = Array.from(Array(cellsToUseCount)).map(
+            (_, i) => fromCellId + i
+          );
+          worker.postMessage({ cellIds });
+          fromCellId += cellsToUseCount;
+        }
+      }
+
+      function setStatus(what) {
+        document.getElementById("status").innerHTML = what;
+      }
+
+      function createWasmWorkers(workersCount, matrixSize) {
+        const wasmMemory = new WebAssembly.Memory({
+          initial: 256,
+          maximum: 256,
+          shared: true
+        });
+
+        const createWorker = (workerId, startCellId, every) =>
+          new Promise(resolve => {
+            const worker = new Worker("wasm-worker.js");
+            worker.onmessage = ({ data }) => resolve(data);
+            worker.postMessage({
+              workerId,
+              matrixSize,
+              startCellId,
+              every,
+              wasmMemory
+            });
+          });
+
+        const colorCells = () => {
+          const heap = new Uint8Array(wasmMemory.buffer);
+          const startOffset = 1024;
+
+          const dumpMemory = () => {
+            for (let i = 0; i < 10000; i++) {
+              if (heap[i] > 0) {
+                console.log(i, heap[i]);
+              }
+            }
+          };
+
+          const getInt = function(offset) {
+            return (
+              heap[offset] |
+              (heap[offset + 1] << 8) |
+              (heap[offset + 2] << 16) |
+              (heap[offset + 3] << 24)
+            );
+          };
+
+          const getRgb = rgbInt => ({
+            red: (rgbInt >> 16) & 0xff,
+            green: (rgbInt >> 8) & 0xff,
+            blue: rgbInt & 0xff
+          });
+
+          for (let cellId = 0; cellId < matrixSize; cellId++) {
+            const cellStartOffset = startOffset + cellId * 4;
+            const color = getRgb(getInt(cellStartOffset));
+            colorCell(cellId, color);
+          }
+        };
+
+        const startTime = performance.now();
+
+        const workers = Array.from(Array(workersCount)).map((_, workerId) =>
+          createWorker(workerId, workerId, workersCount)
+        );
+
+        Promise.all(workers).then(results => {
+          colorCells();
+
+          const endTime = performance.now();
+          const timeDiff = Math.floor(endTime - startTime);
+
+          const totalColoredCellsCount = results.reduce(
+            (sum, r) => sum + r.coloredCellsCount,
+            0
+          );
+
+          const resultsStatus = results
+            .map(
+              r => `Worker ${r.workerId} colored ${r.coloredCellsCount} cells`
+            )
+            .join("<br/>");
+          setStatus(
+            `Completed in ${timeDiff}ms<br/><br/>` +
+              `${resultsStatus}<br/><br/>` +
+              `Total ${totalColoredCellsCount} cells colored`
+          );
+        });
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const matrixWidth = parseInt(urlParams.get("matrixWidth"));
+      const matrixHeight = parseInt(urlParams.get("matrixHeight"));
+      const workersCount = parseInt(urlParams.get("workersCount"));
+
+      if (matrixWidth > 0 && matrixHeight > 0) {
+        createMatrix(matrixWidth, matrixHeight);
+
+        if (workersCount > 0) {
+          setStatus("Running...");
+          createWasmWorkers(workersCount, matrixWidth * matrixHeight);
+        }
+      }
+    </script>
+  </body>
+</html>
