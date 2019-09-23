@@ -14,6 +14,8 @@ Next, you will need following fixes to build using shared memory and mutex:
 
 You need to compile the updated `worker.wast` file back to `.wasm`. You can do this using the `wat2wasm` tool from [WebAssembly Binary Toolkit](https://github.com/WebAssembly/wabt) (with `--enable-threads` option) or using this [web demo](https://webassembly.github.io/wabt/demo/wat2wasm/) (with the threads checkbox checked).
 
+You can play around with `USE_MUTEX` in `worker.cpp` to see how locking affects multiple workers.
+
 ## Run
 
 Run in a Web server and use QueryString to change settings:

@@ -94,16 +94,10 @@
     (i32.const 4000)
    )
   )
-  (local.set $6
+  (local.set $4
    (local.get $2)
   )
   (local.set $2
-   (call $_randomBetween
-    (i32.const 1)
-    (i32.const 256)
-   )
-  )
-  (local.set $5
    (call $_randomBetween
     (i32.const 1)
     (i32.const 256)
@@ -115,9 +109,15 @@
     (i32.const 256)
    )
   )
+  (local.set $5
+   (call $_randomBetween
+    (i32.const 1)
+    (i32.const 256)
+   )
+  )
   (if
    (i32.eqz
-    (local.tee $4
+    (local.tee $6
      (i32.gt_s
       (local.get $1)
       (i32.const 0)
@@ -126,14 +126,14 @@
    )
    (block
     (global.set $STACKTOP
-     (local.get $6)
+     (local.get $4)
     )
     (return
      (i32.const 0)
     )
    )
   )
-  (local.set $9
+  (local.set $7
    (i32.mul
     (local.get $0)
     (local.get $1)
@@ -148,11 +148,11 @@
      (i32.shl
       (i32.add
        (local.get $0)
-       (local.get $9)
+       (local.get $7)
       )
       (i32.const 2)
      )
-     (local.get $6)
+     (local.get $4)
     )
     (local.get $0)
    )
@@ -170,23 +170,23 @@
   )
   (if
    (i32.eqz
-    (local.get $4)
+    (local.get $6)
    )
    (block
     (global.set $STACKTOP
-     (local.get $6)
+     (local.get $4)
     )
     (return
      (i32.const 0)
     )
    )
   )
-  (local.set $12
+  (local.set $10
    (i32.add
-    (local.get $3)
+    (local.get $5)
     (i32.shl
      (i32.add
-      (local.get $5)
+      (local.get $3)
       (i32.shl
        (local.get $2)
        (i32.const 8)
@@ -199,120 +199,18 @@
   (local.set $2
    (local.get $1)
   )
-  (local.set $5
+  (local.set $3
    (i32.const 0)
   )
   (loop $while-in1
-   (if
-    (i32.eqz
-     (call $_randomBetween
-      (i32.const 0)
-      (i32.const 2)
-     )
-    )
-    (block
-     (if
-      (i32.gt_s
-       (local.tee $10
-        (call $_randomBetween
-         (i32.const 20)
-         (i32.const 40)
-        )
-       )
-       (i32.const 1)
-      )
-      (block
-       (local.set $7
-        (i32.const 0)
-       )
-       (loop $while-in3
-        (local.set $8
-         (i32.const 0)
-        )
-        (loop $while-in5
-         (local.set $0
-          (i32.const 1)
-         )
-         (local.set $1
-          (i32.const 1)
-         )
-         (local.set $3
-          (local.get $10)
-         )
-         (loop $while-in7
-          (local.set $11
-           (i32.add
-            (local.get $3)
-            (i32.const -1)
-           )
-          )
-          (local.set $4
-           (i32.add
-            (local.get $0)
-            (local.get $1)
-           )
-          )
-          (if
-           (i32.gt_s
-            (local.get $3)
-            (i32.const 2)
-           )
-           (block
-            (local.set $1
-             (local.get $0)
-            )
-            (local.set $0
-             (local.get $4)
-            )
-            (local.set $3
-             (local.get $11)
-            )
-            (br $while-in7)
-           )
-          )
-         )
-         (br_if $while-in5
-          (i32.ne
-           (local.tee $8
-            (i32.add
-             (local.get $8)
-             (i32.const 1)
-            )
-           )
-           (i32.const 1000)
-          )
-         )
-        )
-        (br_if $while-in3
-         (i32.ne
-          (local.tee $7
-           (i32.add
-            (local.get $7)
-            (i32.const 1)
-           )
-          )
-          (i32.const 3000)
-         )
-        )
-       )
-      )
-      (local.set $4
-       (i32.const 1)
-      )
-     )
-     (call $_noop
-      (local.get $4)
-     )
-    )
-   )
    (local.set $0
     (i32.load
-     (local.tee $14
+     (local.tee $12
       (i32.add
        (i32.shl
         (i32.add
-         (local.get $9)
-         (local.tee $13
+         (local.get $7)
+         (local.tee $11
           (call $_randomBetween
            (i32.const 0)
            (local.get $2)
@@ -321,7 +219,7 @@
         )
         (i32.const 2)
        )
-       (local.get $6)
+       (local.get $4)
       )
      )
     )
@@ -346,130 +244,120 @@
       (call $__ZNSt3__25mutex6unlockEv
        (i32.const 5024)
       )
-      (local.get $5)
+      (local.get $3)
      )
      (block (result i32)
       (i32.store
        (local.get $0)
-       (local.get $12)
+       (local.get $10)
       )
       (call $__ZNSt3__25mutex6unlockEv
        (i32.const 5024)
       )
       (if
-       (i32.eqz
-        (call $_randomBetween
-         (i32.const 0)
-         (i32.const 2)
+       (i32.gt_s
+        (local.tee $13
+         (call $_randomBetween
+          (i32.const 20)
+          (i32.const 40)
+         )
         )
+        (i32.const 1)
        )
        (block
-        (if
-         (i32.gt_s
-          (local.tee $10
-           (call $_randomBetween
-            (i32.const 20)
-            (i32.const 40)
-           )
-          )
-          (i32.const 1)
-         )
-         (block
-          (local.set $7
-           (i32.const 0)
-          )
-          (loop $while-in9
-           (local.set $8
-            (i32.const 0)
-           )
-           (loop $while-in11
-            (local.set $0
-             (i32.const 1)
-            )
-            (local.set $1
-             (i32.const 1)
-            )
-            (local.set $3
-             (local.get $10)
-            )
-            (loop $while-in13
-             (local.set $11
-              (i32.add
-               (local.get $3)
-               (i32.const -1)
-              )
-             )
-             (local.set $4
-              (i32.add
-               (local.get $0)
-               (local.get $1)
-              )
-             )
-             (if
-              (i32.gt_s
-               (local.get $3)
-               (i32.const 2)
-              )
-              (block
-               (local.set $1
-                (local.get $0)
-               )
-               (local.set $0
-                (local.get $4)
-               )
-               (local.set $3
-                (local.get $11)
-               )
-               (br $while-in13)
-              )
-             )
-            )
-            (br_if $while-in11
-             (i32.ne
-              (local.tee $8
-               (i32.add
-                (local.get $8)
-                (i32.const 1)
-               )
-              )
-              (i32.const 1000)
-             )
-            )
-           )
-           (br_if $while-in9
-            (i32.ne
-             (local.tee $7
-              (i32.add
-               (local.get $7)
-               (i32.const 1)
-              )
-             )
-             (i32.const 3000)
-            )
-           )
-          )
-         )
-         (local.set $4
-          (i32.const 1)
-         )
+        (local.set $8
+         (i32.const 0)
         )
-        (call $_noop
-         (local.get $4)
+        (loop $while-in3
+         (local.set $9
+          (i32.const 0)
+         )
+         (loop $while-in5
+          (local.set $0
+           (i32.const 1)
+          )
+          (local.set $1
+           (i32.const 1)
+          )
+          (local.set $5
+           (local.get $13)
+          )
+          (loop $while-in7
+           (local.set $14
+            (i32.add
+             (local.get $5)
+             (i32.const -1)
+            )
+           )
+           (local.set $6
+            (i32.add
+             (local.get $0)
+             (local.get $1)
+            )
+           )
+           (if
+            (i32.gt_s
+             (local.get $5)
+             (i32.const 2)
+            )
+            (block
+             (local.set $1
+              (local.get $0)
+             )
+             (local.set $0
+              (local.get $6)
+             )
+             (local.set $5
+              (local.get $14)
+             )
+             (br $while-in7)
+            )
+           )
+          )
+          (br_if $while-in5
+           (i32.ne
+            (local.tee $9
+             (i32.add
+              (local.get $9)
+              (i32.const 1)
+             )
+            )
+            (i32.const 1000)
+           )
+          )
+         )
+         (br_if $while-in3
+          (i32.ne
+           (local.tee $8
+            (i32.add
+             (local.get $8)
+             (i32.const 1)
+            )
+           )
+           (i32.const 5000)
+          )
+         )
         )
        )
+       (local.set $6
+        (i32.const 1)
+       )
+      )
+      (call $_noop
+       (local.get $6)
       )
       (i32.add
-       (local.get $5)
+       (local.get $3)
        (i32.const 1)
       )
      )
     )
    )
-   (local.set $5
+   (local.set $3
     (i32.add
      (i32.shl
       (i32.add
-       (local.get $9)
+       (local.get $7)
        (local.tee $1
         (i32.add
          (local.get $2)
@@ -479,26 +367,26 @@
       )
       (i32.const 2)
      )
-     (local.get $6)
+     (local.get $4)
     )
    )
    (if
     (i32.lt_s
      (i32.add
-      (local.get $13)
+      (local.get $11)
       (i32.const 1)
      )
      (local.get $2)
     )
     (i32.store
-     (local.get $14)
+     (local.get $12)
      (i32.load
-      (local.get $5)
+      (local.get $3)
      )
     )
    )
    (i32.store
-    (local.get $5)
+    (local.get $3)
     (i32.const -1)
    )
    (if
@@ -510,7 +398,7 @@
      (local.set $2
       (local.get $1)
      )
-     (local.set $5
+     (local.set $3
       (local.get $0)
      )
      (br $while-in1)
@@ -518,7 +406,7 @@
    )
   )
   (global.set $STACKTOP
-   (local.get $6)
+   (local.get $4)
   )
   (local.get $0)
  )

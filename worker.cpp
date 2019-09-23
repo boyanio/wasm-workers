@@ -1,17 +1,22 @@
-#include <mutex>
+#define MAX_MATRIX_SIZE 1000
+#define USE_MUTEX 1
 
-const int MAX_MATRIX_SIZE = 1000;
-int matrixRgbInt[MAX_MATRIX_SIZE];
+#ifdef USE_MUTEX
+#include <mutex>
 std::mutex matrixMutex;
+#endif
+
+int matrixRgbInt[MAX_MATRIX_SIZE];
 
 extern "C" {
 
   int rgbToInt(int red, int green, int blue);
-
   void simulateSlowComputation();
+  void lockMatrixMutext();
+  void unlockMatrixMutext();
+  int getIndexBase(int workerId, int matrixSize);
 
   extern void noop(int x);
-
   extern int randomBetween(int minInclusive, int maxExclusive);
 
   int colorCells(int workerId, int matrixSize) {
@@ -30,9 +35,8 @@ extern "C" {
     // Create an array containing the indices of
     // possible cells that we have not manipulated.
     // We use a shared memory, so we have to use
-    // workerId to generate a complex index
-    int indexBase = workerId * matrixSize;
-
+    // workerId to generate a complex index.
+    int indexBase = getIndexBase(workerId, matrixSize);
     int possibleCellIds[MAX_MATRIX_SIZE];
     for (int i = 0; i < matrixSize; i++) {
       possibleCellIds[indexBase + i] = i;
@@ -41,26 +45,20 @@ extern "C" {
     int possibleCellsCount = matrixSize;
     while (possibleCellsCount > 0) {
 
-      if (randomBetween(0, 2) == 0) {
-        simulateSlowComputation();
-      }
-
       int cellIdIndex = randomBetween(0, possibleCellsCount);
       int cellId = possibleCellIds[indexBase + cellIdIndex];
       
-      matrixMutex.lock();
+      lockMatrixMutext();
       if (matrixRgbInt[cellId] == 0) {        
         matrixRgbInt[cellId] = rgbInt;
-        matrixMutex.unlock();
+        unlockMatrixMutext();
 
-        if (randomBetween(0, 2) == 0) {
-          simulateSlowComputation();
-        }
+        simulateSlowComputation();
 
         coloredCellsCount++;
       }
       else {
-        matrixMutex.unlock();
+        unlockMatrixMutext();
       }
 
       // Swap current index with the value of the last one
@@ -75,6 +73,26 @@ extern "C" {
     }
 
     return coloredCellsCount;
+  }
+
+  void lockMatrixMutext() {
+    #ifdef USE_MUTEX
+    matrixMutex.lock();
+    #endif
+  }
+
+  void unlockMatrixMutext() {
+    #ifdef USE_MUTEX
+    matrixMutex.unlock();
+    #endif
+  }
+
+  int getIndexBase(int workerId, int matrixSize) {
+    #ifdef USE_MUTEX
+    return workerId * matrixSize;
+    #else
+    return 0;
+    #endif
   }
 
   int rgbToInt(int red, int green, int blue) {
@@ -100,13 +118,12 @@ extern "C" {
     int num = randomBetween(20, 40);
     int f;
 
-    for (int i = 0; i < 3000; i++) {
+    for (int i = 0; i < 5000; i++) {
       for (int j = 0; j < 1000; j++) {
         f = fibonacci(num);
       }
     }
 
-    return noop(f);
+    noop(f);
   }
-
 }
