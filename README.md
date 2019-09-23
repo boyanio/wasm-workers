@@ -20,6 +20,8 @@ Run in a Web server and use QueryString to change settings:
 
 `/?matrixWidth=5&matrixHeight=5&workersCount=3`
 
+![](/images/wasm-workers.jpg)
+
 ### Compatibility
 
 For now, only Chrome supports `SharedArrayBuffer` (and hence shared WebAssembly memory).
