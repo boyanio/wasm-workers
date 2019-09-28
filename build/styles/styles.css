@@ -1,0 +1,30 @@
+body {
+  font-family: arial;
+  margin: 0;
+  padding: none;
+}
+
+#status {
+  text-align: center;
+  margin: 10px 0 0 0;
+  font-size: 1.5em;
+}
+
+#matrix-container {
+  position: relative;
+}
+
+#matrix {
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  position: absolute;
+  top: 10px;
+}
+
+.cell {
+  float: left;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  text-align: center;
+  vertical-align: middle;
+}
