@@ -4,9 +4,17 @@ body {
   padding: none;
 }
 
+.jumbotron {
+  padding: 2rem;
+}
+
+.jumbotron h1, .jumbotron p {
+  text-align: center;
+}
+
 #status {
   text-align: center;
-  margin: 10px 0 0 0;
+  margin: 0;
   font-size: 1.5em;
 }
 
@@ -18,7 +26,7 @@ body {
   border-top: 1px solid black;
   border-left: 1px solid black;
   position: absolute;
-  top: 10px;
+  top: 0;
 }
 
 .cell {

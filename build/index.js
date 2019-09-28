@@ -19,10 +19,12 @@
     const matrixElWidth = width * cellSize + matrixElBorder;
     matrixEl.style.width = `${matrixElWidth}px`;
 
-    const matrixContainerWidth = document.getElementById("matrix-container")
-      .clientWidth;
-    const matrixElLeft = (matrixContainerWidth - matrixElWidth) / 2;
+    const matrixContainerEl = document.getElementById("matrix-container");
+    const matrixContainerElWidth = matrixContainerEl.clientWidth;
+    const matrixElLeft = (matrixContainerElWidth - matrixElWidth) / 2;
     matrixEl.style.left = `${matrixElLeft}px`;
+
+    matrixContainerEl.style.height = `${matrixElWidth + 30}px`;
   }
 
   function colorCell(cellId, color) {
