@@ -1,4 +1,4 @@
-# wasm-workers
+# Wasm Workers
 
 Demo project showing how to use WebAssembly and Web Workers.
 
@@ -18,9 +18,7 @@ You can play around with `USE_MUTEX` in `worker.cpp` to see how locking affects 
 
 ## Run
 
-Run in a Web server and use QueryString to change settings:
-
-`/?matrixWidth=5&matrixHeight=5&workersCount=3`
+Configure any Web server to point to the `build` folder.
 
 ![](/images/wasm-workers.jpg)
 
