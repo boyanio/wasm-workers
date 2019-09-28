@@ -24,7 +24,8 @@
     const matrixElLeft = (matrixContainerElWidth - matrixElWidth) / 2;
     matrixEl.style.left = `${matrixElLeft}px`;
 
-    matrixContainerEl.style.height = `${matrixElWidth + 30}px`;
+    const matrixElHeight = height * cellSize + matrixElBorder;
+    matrixContainerEl.style.height = `${matrixElHeight + 30}px`;
   }
 
   function colorCell(cellId, color) {
@@ -123,21 +124,20 @@
   }
 
   const urlParams = new URLSearchParams(window.location.search);
-  const matrixWidth = parseInt(urlParams.get("width"));
-  const matrixHeight = parseInt(urlParams.get("height"));
-  const workersCount = parseInt(urlParams.get("workers"));
+  const parseUrlParam = (urlParam, defaultValue) => {
+    const value = parseInt(urlParams.get(urlParam), 10);
+    return isNaN(value) || value <= 0 ? defaultValue : value;
+  };
 
-  if (matrixWidth > 0 && matrixHeight > 0) {
-    createMatrix(matrixWidth, matrixHeight);
+  const matrixWidth = parseUrlParam("width", 7);
+  const matrixHeight = parseUrlParam("height", 7);
+  const workersCount = parseUrlParam("workers", 2);
 
-    document.getElementById("matrixWidth").value = matrixWidth;
-    document.getElementById("matrixHeight").value = matrixHeight;
+  createMatrix(matrixWidth, matrixHeight);
+  createWasmWorkers(workersCount, matrixWidth * matrixHeight);
 
-    if (workersCount > 0) {
-      setStatus("Running...");
-      document.getElementById("workersCount").value = workersCount;
-
-      createWasmWorkers(workersCount, matrixWidth * matrixHeight);
-    }
-  }
+  document.getElementById("matrixWidth").value = matrixWidth;
+  document.getElementById("matrixHeight").value = matrixHeight;
+  document.getElementById("workersCount").value = workersCount;
+  setStatus("Running...");
 })();

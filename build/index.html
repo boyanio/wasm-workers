@@ -34,45 +34,45 @@
           <hr />
 
           <form method="GET">
-            <div class="form-group row">
-              <label for="width" class="col-sm-6 col-form-label">
-                Matrix width:
-              </label>
-              <div class="col-sm-6">
+            <div class="row">
+              <div class="form-group col-sm-4">
+                <label for="width">
+                  Matrix width:
+                </label>
                 <input
                   type="number"
                   id="matrixWidth"
                   name="width"
                   class="form-control"
+                  min="1"
                 />
               </div>
-            </div>
-            <div class="form-group row">
-              <label for="height" class="col-sm-6 col-form-label">
-                Matrix height:
-              </label>
-              <div class="col-sm-6">
+              <div class="form-group col-sm-4">
+                <label for="height">
+                  Matrix height:
+                </label>
                 <input
                   type="number"
                   id="matrixHeight"
                   name="height"
                   class="form-control"
+                  min="1"
                 />
               </div>
-            </div>
-            <div class="form-group row">
-              <label for="workers" class="col-sm-6 col-form-label">
-                Workers count:
-              </label>
-              <div class="col-sm-6">
+              <div class="form-group col-sm-4">
+                <label for="height">
+                  Workers:
+                </label>
                 <input
                   type="number"
                   id="workersCount"
                   name="workers"
                   class="form-control"
+                  min="1"
                 />
               </div>
             </div>
+
             <button type="submit" class="btn btn-primary">Update</button>
           </form>
         </div>
