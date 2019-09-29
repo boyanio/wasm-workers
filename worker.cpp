@@ -6,6 +6,8 @@
 std::mutex matrixMutex;
 #endif
 
+// Global matrix containing the colors
+// as integers for each cell in the matrix
 int matrixRgbInt[MAX_MATRIX_SIZE];
 
 extern "C" {
