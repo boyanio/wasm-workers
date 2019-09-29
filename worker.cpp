@@ -1,5 +1,5 @@
 #define MAX_MATRIX_SIZE 1000
-#define USE_MUTEX 1
+#define USE_MUTEX
 
 #ifdef USE_MUTEX
 #include <mutex>
@@ -12,8 +12,8 @@ extern "C" {
 
   int rgbToInt(int red, int green, int blue);
   void simulateSlowComputation();
-  void lockMatrixMutext();
-  void unlockMatrixMutext();
+  void lockMatrixMutex();
+  void unlockMatrixMutex();
   int getIndexBase(int workerId, int matrixSize);
 
   extern void noop(int x);
@@ -48,17 +48,17 @@ extern "C" {
       int cellIdIndex = randomBetween(0, possibleCellsCount);
       int cellId = possibleCellIds[indexBase + cellIdIndex];
       
-      lockMatrixMutext();
+      lockMatrixMutex();
       if (matrixRgbInt[cellId] == 0) {        
         matrixRgbInt[cellId] = rgbInt;
-        unlockMatrixMutext();
+        unlockMatrixMutex();
 
         simulateSlowComputation();
 
         coloredCellsCount++;
       }
       else {
-        unlockMatrixMutext();
+        unlockMatrixMutex();
       }
 
       // Swap current index with the value of the last one
@@ -75,13 +75,13 @@ extern "C" {
     return coloredCellsCount;
   }
 
-  void lockMatrixMutext() {
+  void lockMatrixMutex() {
     #ifdef USE_MUTEX
     matrixMutex.lock();
     #endif
   }
 
-  void unlockMatrixMutext() {
+  void unlockMatrixMutex() {
     #ifdef USE_MUTEX
     matrixMutex.unlock();
     #endif
