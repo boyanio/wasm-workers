@@ -8,7 +8,6 @@ async function loadWasm(wasmMemory) {
         Math.floor(
           Math.random() * (maxExclusive - minInclusive) + minInclusive
         ),
-      _debug: (...args) => console.log(args),
       _noop: () => {}
     }
   };
@@ -16,7 +15,8 @@ async function loadWasm(wasmMemory) {
   return instance;
 }
 
-this.onmessage = async ({ data: { workerId, matrixSize, wasmMemory } }) => {
+this.onmessage = async ({ data }) => {
+  const { workerId, matrixSize, wasmMemory } = data;
   const wasmInstance = await loadWasm(wasmMemory);
   const coloredCellsCount = wasmInstance.exports._colorCells(
     workerId,

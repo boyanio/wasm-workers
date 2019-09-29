@@ -38,6 +38,61 @@
     document.getElementById("status").innerHTML = what;
   }
 
+  function colorCells(wasmMemory, matrixSize) {
+    const heap = new Uint8Array(wasmMemory.buffer);
+    const startOffset = 1024;
+
+    const dumpMemory = () => {
+      for (let i = 0; i < 10000; i++) {
+        if (heap[i] > 0) {
+          console.log(i, heap[i]);
+        }
+      }
+    };
+
+    const getInt = function(offset) {
+      return (
+        heap[offset] |
+        (heap[offset + 1] << 8) |
+        (heap[offset + 2] << 16) |
+        (heap[offset + 3] << 24)
+      );
+    };
+
+    const getRgb = rgbInt => ({
+      red: (rgbInt >> 16) & 0xff,
+      green: (rgbInt >> 8) & 0xff,
+      blue: rgbInt & 0xff
+    });
+
+    for (let cellId = 0; cellId < matrixSize; cellId++) {
+      const cellStartOffset = startOffset + cellId * 4;
+      const color = getRgb(getInt(cellStartOffset));
+      colorCell(cellId, color);
+    }
+  }
+
+  function processWorkersResults(results, wasmMemory, matrixSize, startTime) {
+    colorCells(wasmMemory, matrixSize);
+
+    const endTime = performance.now();
+    const timeDiff = Math.floor(endTime - startTime);
+
+    const totalColoredCellsCount = results.reduce(
+      (sum, r) => sum + r.coloredCellsCount,
+      0
+    );
+
+    const resultsStatus = results
+      .map(r => `Worker ${r.workerId} colored ${r.coloredCellsCount} cells`)
+      .join("<br/>");
+    setStatus(
+      `Completed in ${timeDiff}ms<br/><br/>` +
+        `${resultsStatus}<br/><br/>` +
+        `Total ${totalColoredCellsCount} cells colored`
+    );
+  }
+
   function createWasmWorkers(workersCount, matrixSize) {
     const wasmMemory = new WebAssembly.Memory({
       initial: 256,
@@ -45,82 +100,29 @@
       shared: true
     });
 
-    const createWorker = (workerId, startCellId, every) =>
+    const createWorker = workerId =>
       new Promise(resolve => {
         const worker = new Worker("wasm-worker.js");
-        worker.onmessage = messageEvent => {
+        worker.onmessage = ({ data }) => {
           worker.terminate();
-          resolve(messageEvent.data);
+          resolve(data);
         };
         worker.postMessage({
           workerId,
           matrixSize,
-          startCellId,
-          every,
           wasmMemory
         });
       });
 
-    const colorCells = () => {
-      const heap = new Uint8Array(wasmMemory.buffer);
-      const startOffset = 1024;
-
-      const dumpMemory = () => {
-        for (let i = 0; i < 10000; i++) {
-          if (heap[i] > 0) {
-            console.log(i, heap[i]);
-          }
-        }
-      };
-
-      const getInt = function(offset) {
-        return (
-          heap[offset] |
-          (heap[offset + 1] << 8) |
-          (heap[offset + 2] << 16) |
-          (heap[offset + 3] << 24)
-        );
-      };
-
-      const getRgb = rgbInt => ({
-        red: (rgbInt >> 16) & 0xff,
-        green: (rgbInt >> 8) & 0xff,
-        blue: rgbInt & 0xff
-      });
-
-      for (let cellId = 0; cellId < matrixSize; cellId++) {
-        const cellStartOffset = startOffset + cellId * 4;
-        const color = getRgb(getInt(cellStartOffset));
-        colorCell(cellId, color);
-      }
-    };
-
     const startTime = performance.now();
 
     const workers = Array.from(Array(workersCount)).map((_, workerId) =>
-      createWorker(workerId, workerId, workersCount)
+      createWorker(workerId)
     );
 
-    Promise.all(workers).then(results => {
-      colorCells();
-
-      const endTime = performance.now();
-      const timeDiff = Math.floor(endTime - startTime);
-
-      const totalColoredCellsCount = results.reduce(
-        (sum, r) => sum + r.coloredCellsCount,
-        0
-      );
-
-      const resultsStatus = results
-        .map(r => `Worker ${r.workerId} colored ${r.coloredCellsCount} cells`)
-        .join("<br/>");
-      setStatus(
-        `Completed in ${timeDiff}ms<br/><br/>` +
-          `${resultsStatus}<br/><br/>` +
-          `Total ${totalColoredCellsCount} cells colored`
-      );
-    });
+    Promise.all(workers).then(results =>
+      processWorkersResults(results, wasmMemory, matrixSize, startTime)
+    );
   }
 
   const urlParams = new URLSearchParams(window.location.search);
