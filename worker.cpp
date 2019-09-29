@@ -119,11 +119,12 @@ extern "C" {
     int f;
 
     for (int i = 0; i < 5000; i++) {
-      for (int j = 0; j < 1000; j++) {
+      for (int j = 0; j < 5000; j++) {
         f = fibonacci(num);
       }
     }
 
+    // So that the code does not get optimized
     noop(f);
   }
 }
